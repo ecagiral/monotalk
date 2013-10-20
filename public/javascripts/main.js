@@ -268,7 +268,7 @@ var isOrig = false;
 		var data = {};
 		data.type = "ping";
 	    websocket.send(JSON.stringify(data));
-	    setTimeout(sendPing, 50000);
+	    setTimeout(sendPing, 20000);
 	}
 	
 
