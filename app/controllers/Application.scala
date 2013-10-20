@@ -121,6 +121,7 @@ object Application extends Controller {
                   msg =>
                     Logger.info("sending message "+msg+" to talk "+data.get.id +" from "+sessionId.get)
                     var _data = TalkCache.cache.get(data.get.id)
+                    Logger.info("sending message data "+_data);
                     val isOrig = _data.get.origUser.equalsIgnoreCase(sessionId.get);
                     var target:Channel[String]=null;
                     if(isOrig){
@@ -128,8 +129,11 @@ object Application extends Controller {
                     }else{
                       target = _data.get.origSignalOut;
                     }
-                    target.push(msg)
-                    Logger.info("sent message "+msg+" to "+target+" from "+sessionId.get)
+                    Logger.info("sending message target "+target);
+                    if(target!=null){
+                        target.push(msg)
+                        Logger.info("sent message "+msg+" to "+target+" from "+sessionId.get)
+                    }
           }
           var (out, channel) = Concurrent.broadcast[String]
           if(!data.isEmpty){
