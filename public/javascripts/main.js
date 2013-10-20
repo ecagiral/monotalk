@@ -16,6 +16,7 @@ var isOrig = false;
   function onOpen(evt)
   {
 	  printStatus("web socket acildi. karsi taraf bekleniyor");
+	  sendPing();
   }
 
   function onClose(evt)
@@ -45,6 +46,8 @@ var isOrig = false;
 		  handleAnswer(message.msg);
 	  }else if(message.type==="ice"){
 		  handleICE(message.msg);
+	  }else if(message.type==="ping"){
+		  //reply?
 	  }
 	
   }
@@ -261,7 +264,13 @@ var isOrig = false;
 	    websocket.send(JSON.stringify(data));
 	}
 	
-
+	var sendPing = function(){
+		var data = {};
+		data.type = "ping";
+	    websocket.send(JSON.stringify(data));
+	    setTimeout(sendPing, 50000);
+	}
+	
 
 	function waitUntilRemoteStreamStartsFlowing()
 	{
