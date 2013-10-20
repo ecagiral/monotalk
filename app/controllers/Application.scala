@@ -117,7 +117,7 @@ object Application extends Controller {
           val isOrig = data.get.origUser.equalsIgnoreCase(sessionId.get);
           val in = Iteratee.foreach[String]{
                   msg =>
-                    Logger.info("sending message "+msg)
+                    Logger.info("sending message "+msg+" to talk "+data.get.id)
                     var _data = TalkCache.cache.get(data.get.id)
                     val isOrig = _data.get.origUser.equalsIgnoreCase(sessionId.get);
                     var target:Channel[String]=null;
