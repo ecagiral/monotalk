@@ -7,15 +7,12 @@ object TalkCache {
   val cache = collection.mutable.Map[String, TalkData]()
   
   def getTalk(userId:String):Option[TalkData] = {
-    Logger.info("get talk called")
     cache foreach {
       case (key, value) => {
         if(value.origUser.equalsIgnoreCase(userId)){
-          Logger.info("get talk found")
            return Option(value);
         } 
         if(value.termUser != null && value.termUser.equalsIgnoreCase(userId)){
-          Logger.info("get talk found")
            return Option(value);
         }  
       }

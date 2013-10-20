@@ -65,7 +65,7 @@ object Application extends Controller {
     }
   
   def getTalk(talkId:String) = Action { implicit request =>
-
+    Logger.info("get talk "+talkId)
     var sessionId = request.session.get("id");
     var newUser:Boolean = false;
     sessionId match {
@@ -91,8 +91,10 @@ object Application extends Controller {
 
 
     if(error.equalsIgnoreCase("")){
+        TalkCache.deleteTalk(sessionId.get);
         data.get.termUser = sessionId.get;
         TalkCache.addTalk(data.get);
+        Logger.info("talk "+talkId+" found and added for "+sessionId.get)
     }
     Redirect(routes.Application.index()).flashing("error" -> error)
   
@@ -117,7 +119,7 @@ object Application extends Controller {
           val isOrig = data.get.origUser.equalsIgnoreCase(sessionId.get);
           val in = Iteratee.foreach[String]{
                   msg =>
-                    Logger.info("sending message "+msg+" to talk "+data.get.id)
+                    Logger.info("sending message "+msg+" to talk "+data.get.id +" from "+sessionId.get)
                     var _data = TalkCache.cache.get(data.get.id)
                     val isOrig = _data.get.origUser.equalsIgnoreCase(sessionId.get);
                     var target:Channel[String]=null;
@@ -127,7 +129,7 @@ object Application extends Controller {
                       target = _data.get.origSignalOut;
                     }
                     target.push(msg)
-                    Logger.info("sent message "+msg+" to "+target)
+                    Logger.info("sent message "+msg+" to "+target+" from "+sessionId.get)
           }
           var (out, channel) = Concurrent.broadcast[String]
           if(!data.isEmpty){

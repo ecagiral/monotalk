@@ -16,7 +16,7 @@ var isOrig = false;
   function onOpen(evt)
   {
 	  printStatus("web socket acildi. karsi taraf bekleniyor");
-	  sendPing();
+	  setTimeout(sendPing, 20000);
   }
 
   function onClose(evt)
