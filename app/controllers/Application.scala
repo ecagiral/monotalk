@@ -117,6 +117,7 @@ object Application extends Controller {
           val isOrig = data.get.origUser.equalsIgnoreCase(sessionId.get);
           val in = Iteratee.foreach[String]{
                   msg =>
+                    Logger.info("sending message "+msg)
                     var _data = TalkCache.cache.get(data.get.id)
                     val isOrig = _data.get.origUser.equalsIgnoreCase(sessionId.get);
                     var target:Channel[String]=null;
@@ -125,8 +126,8 @@ object Application extends Controller {
                     }else{
                       target = _data.get.origSignalOut;
                     }
-                    Logger.info("send message "+msg+" to "+target)
                     target.push(msg)
+                    Logger.info("sent message "+msg+" to "+target)
           }
           var (out, channel) = Concurrent.broadcast[String]
           if(!data.isEmpty){
