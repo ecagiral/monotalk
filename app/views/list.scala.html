@@ -1,0 +1,24 @@
+@(list: List[TalkData])
+
+@main("admin") {
+
+	@for( data <- list ){
+		id: @data.id
+		<br>
+		origUser: @data.origUser
+		<br>
+		termUser: @data.termUser
+		<br>
+		origSignalOut: @data.origSignalOut
+		<br>
+		termSignalOut: @data.termSignalOut
+		<br>
+		origSignalIn: @data.origSignalIn
+		<br>
+		termSignalIn: @data.termSignalIn
+		<br>
+		==================
+		<br>
+	}
+
+}

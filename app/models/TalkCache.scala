@@ -45,5 +45,9 @@ object TalkCache {
     }
     
   }
+  
+  def getList():List[TalkData]={
+    return cache.values.toList
+  }
 
 }

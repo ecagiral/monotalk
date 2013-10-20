@@ -7,7 +7,9 @@ GET     /                           controllers.Application.index
 
 GET     /create                     controllers.Application.createTalk
 
-GET     /channel                     controllers.Application.channel
+GET     /channel                    controllers.Application.channel
+
+GET     /list                     	controllers.Application.list
 
 GET     /:talkId                    controllers.Application.getTalk(talkId: String)
 

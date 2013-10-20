@@ -60,6 +60,10 @@ object Application extends Controller {
   
   }
   
+    def list = Action {request =>
+        Ok(views.html.list(TalkCache.getList()));
+    }
+  
   def getTalk(talkId:String) = Action { implicit request =>
 
     var sessionId = request.session.get("id");

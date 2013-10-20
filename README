@@ -1,4 +1,6 @@
-This is your new Play 2.1 application
+MONOTALK
 =====================================
 
-This file will be packaged with your application, when using `play dist`.
+A simple chat app with video support
+
+http://monotalk.herokuapp.com
