@@ -108,6 +108,8 @@ var isOrig = false;
 	var sessionData;
 	var streamToAttach;
 	var localAttached = false;
+	var iceReady = false;
+	var iceList = new Array();
 
 	var attachLocalMedia =function(audioData,offer){
         
@@ -134,8 +136,8 @@ var isOrig = false;
 	    }
 	}
 	
-	var initializeWEBRTC = function(offer){
-		webrtcInit = true;
+	var initializeWEBRTC = function(offer,attach){
+		unsetIceReady();
 	    try{
 	        if(navigator.mozGetUserMedia){
 	            //firefox
@@ -202,11 +204,17 @@ var isOrig = false;
 
 	var handleICE = function(data){
 	   if(pc){
-           var iceCand = data;
-           pc.addIceCandidate(new RTCIceCandidate({
-               sdpMLineIndex: iceCand.sdpMLineIndex,
-               candidate: iceCand.candidate
-           }));
+
+           var iceCand = new RTCIceCandidate({
+               sdpMLineIndex: data.sdpMLineIndex,
+               candidate: data.candidate
+           })
+		   if(iceReady){
+			   pc.addIceCandidate(iceCand); 
+		   }else{
+			   iceList.push(iceCand);
+		   }
+           
 	   }
 	};
 
@@ -219,6 +227,7 @@ var isOrig = false;
 	            pc.setRemoteDescription(remoteDesc, function () {
 	                // if we received an offer, we need to answer
 	                if (pc.remoteDescription.type == "offer")
+	                	setIceReady();
 	                    createAnswer();
 	            }, logError)
 	        }catch(e){
@@ -293,6 +302,7 @@ var isOrig = false;
 	    if(pc){
 	    	printStatus("handshake started");
 	        pc.createOffer(function (sessionDescription) {
+	        	setIceReady();
 	            //sessionDescription.sdp = sessionDescription.sdp.replace("a=sendrecv","a=sendonly");
 	            pc.setLocalDescription(sessionDescription);
 	            sendOfferSignal(sessionDescription);
@@ -321,6 +331,18 @@ var isOrig = false;
 	    }, logError)
 	};
 
+	var setIceReady = function(){
+		iceReady = true;
+		for (var i = 0; i < iceList.length; i++) {
+		    pc.addIceCandidate(iceList[i]);
+		}
+		iceList = new Array();
+	}
+	
+	var unsetIceReady = function(){
+		iceReady = false;
+		iceList = new Array();
+	}
 
 	var logError = function(data){
 	    console.log("hata",data);
