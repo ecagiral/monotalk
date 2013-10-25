@@ -60,7 +60,7 @@ var isOrig = false;
   function doSend()
   {
 	var message =  $('#msgToSend').val();
-
+	$('#msgToSend').val("");
 	$('#messages').append('<div>Ben : '+message+'</div>')
 	var data = {};
 	data.type = "chat";

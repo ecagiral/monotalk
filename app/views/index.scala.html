@@ -9,19 +9,21 @@
     </div>
    	@if(data.isEmpty){
    		<input onclick="doCreate()" type="button" value="konusma baslat">
-   		<br>
-   		<input onclick="doJoin()" type="button" value="konusmaya katil"><input id="talkToJoin" type="text">
    	}else{
    		@if(isOrig.get){
    			Bir konusma baslattiniz
+   			<br>
+	   		Id: @data.get.id
+	   		<br>
+	   		Link: <span style="color:red">http://@(request.host)/@data.get.id</span> (konusmak istedigini kisiyle paylasiniz)
+	   		<br>
    		}else{
    			Bir konusmaya katildiniz
+   			<br>
+	   		Id: @data.get.id
+	   		<br>
    		} 
-   		<br>
-   		Id: @data.get.id
-   		<br>
-   		Link: <span style="color:red">http://@(request.host)/@data.get.id</span> (konusmak istedigini kisiyle paylasiniz)
-   		<br>
+
 		Durum: <span id="talkStatus">karsi taraf bekleniyor</span>
    		<br>
    		<div id="talkWindow">
@@ -38,8 +40,6 @@
    		</div>
    		<br>
    		<input onclick="doCreate()" type="button" value="baska konusma baslat">
-   		<br>
-   		<input onclick="doJoin()" type="button" value="baska konusmaya katil"><input id="talkToJoin" type="text">
    	}
   
 }

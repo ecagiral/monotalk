@@ -23,7 +23,7 @@ object Application extends Controller {
         sessionId = Some(UUID.randomUUID().toString());
       case Some(data) =>
     }
-    Logger.info("session "+request.host);
+    Logger.info("session "+sessionId.get);
     val talkData = TalkCache.getTalk(sessionId.get);
     var isOrig : Option[Boolean]= None;
     if(talkData != None){     
@@ -56,7 +56,11 @@ object Application extends Controller {
     var data:TalkData = new TalkData(sessionId.get);
     TalkCache.addTalk(data);
     var success = "konusma yaratildi"
-    Redirect(routes.Application.index()).flashing("sucess" -> success)
+    if(newUser){
+        Redirect(routes.Application.index()).flashing("sucess" -> success).withSession("id" -> sessionId.get);
+    }else{
+        Redirect(routes.Application.index()).flashing("sucess" -> success)
+    }
   
   }
   
@@ -96,7 +100,11 @@ object Application extends Controller {
         TalkCache.addTalk(data.get);
         Logger.info("talk "+talkId+" found and added for "+sessionId.get)
     }
-    Redirect(routes.Application.index()).flashing("error" -> error)
+    if(newUser){
+        Redirect(routes.Application.index()).flashing("error" -> error).withSession("id" -> sessionId.get);
+    }else{
+        Redirect(routes.Application.index()).flashing("error" -> error);
+    }
   
   }
   
