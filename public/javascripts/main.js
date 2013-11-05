@@ -26,12 +26,13 @@ var isOrig = false;
 
   function onMessage(evt)
   {
-	  console.log(evt.data);
+	  //console.log(evt.data);
 	  var message = $.parseJSON(evt.data);
 	  if(message.type==="chat"){
 		  $('#messages').append('<div>O   : '+message.msg+'</div>')  
 	  }else if(message.type==="join"){
 		  printStatus("karsi taraf baglandi");
+		  console.log("karsi taraf baglandi");
 		  displayTalk();
 		  if(isOrig){
 		  	initializeWEBRTC();
@@ -56,6 +57,12 @@ var isOrig = false;
   {
     alert('hata: ' + evt.data);
   }
+  
+  function startVideo()
+  {
+	  attachLocalMedia(false);
+  }
+  
 
   function doSend()
   {
@@ -110,6 +117,7 @@ var isOrig = false;
 	var localAttached = false;
 	var iceReady = false;
 	var iceList = new Array();
+	var negotiationSent = false;
 
 	var attachLocalMedia =function(audioData,offer){
         
@@ -120,12 +128,11 @@ var isOrig = false;
 		            streamToAttach = stream;
 		            localvideo = document.querySelector('#local-stream');
 		            attachMediaStream(localvideo,stream);
+		            console.log("adding stream to peer connection");
 				    pc.addStream (streamToAttach);
-				    if(offer){
-				    	handleOffer(offer);
-				    }else{
-				    	createOffer();
-				    }
+				    console.log("added stream to peer connection");
+				    setTimeout(negotiate, 1000);
+
 		        },
 		        function (err) {
 		            console.log("get user media error occured: " + err);
@@ -136,7 +143,7 @@ var isOrig = false;
 	    }
 	}
 	
-	var initializeWEBRTC = function(offer,attach){
+	var initializeWEBRTC = function(offer){
 		unsetIceReady();
 	    try{
 	        if(navigator.mozGetUserMedia){
@@ -187,18 +194,39 @@ var isOrig = false;
 	    };
 
 	    pc.onnegotiationneeded = function () {
-	        console.log("negatiation needed");
+	    	console.log("negotiation needed");
+	    	
 	    };
 
 	    pc.onaddstream = function (evt) {
 	         if (!evt) return;
+	         console.log("onaddstream");
 	         remoteStream = evt.stream;
 	         video = document.querySelector('#remote-stream');
 	         attachMediaStream(video,remoteStream);
 	         waitUntilRemoteStreamStartsFlowing();
 	    };
-	    attachLocalMedia(false,offer)
+	    if(streamToAttach){
+	    	console.log("we have a stream to atttach");
+	    	pc.addStream (streamToAttach);
+	    }
+	    if(offer){
+	    	handleOffer(offer);
+	    }else{
+	    	createOffer();
+	    	//attachLocalMedia(false,offer)
+	    }
+	    //attachLocalMedia(false,offer)
 
+	}
+	
+	var negotiate = function(){
+		console.log("negotiate");
+	    if(isOrig){
+	    	initializeWEBRTC();
+	    }else{
+	    	sendJoin();
+	    }
 	}
 	
 
@@ -242,6 +270,7 @@ var isOrig = false;
 	        try{
 	            pc.createAnswer(function (sessionDescription) {
 	                console.log("answer created");
+	                negotiationSent = false;
 	                pc.setLocalDescription(sessionDescription);
 	                sendAnswerSignal(sessionDescription);
 	                //now wait for ice candidates
@@ -301,8 +330,10 @@ var isOrig = false;
 	var createOffer = function(){
 	    if(pc){
 	    	printStatus("handshake started");
+	    	
 	        pc.createOffer(function (sessionDescription) {
 	        	setIceReady();
+	        	console.log("offer created");
 	            //sessionDescription.sdp = sessionDescription.sdp.replace("a=sendrecv","a=sendonly");
 	            pc.setLocalDescription(sessionDescription);
 	            sendOfferSignal(sessionDescription);
@@ -326,6 +357,7 @@ var isOrig = false;
 	        if (pc.remoteDescription.type == "answer")
 	            console.log("offer answer completed");
 	        	printStatus("handshake finished");
+	        	negotiationSent = false;
 	            //now wait for ice candidates from customer
 	            //getCustomerSignal();
 	    }, logError)
