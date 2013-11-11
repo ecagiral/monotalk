@@ -28,9 +28,7 @@ var isOrig = false;
   {
 	  //console.log(evt.data);
 	  var message = $.parseJSON(evt.data);
-	  if(message.type==="chat"){
-		  $('#messages').append('<div>O   : '+message.msg+'</div>')  
-	  }else if(message.type==="join"){
+	  if(message.type==="join"){
 		  printStatus("karsi taraf baglandi");
 		  console.log("karsi taraf baglandi");
 		  displayTalk();
@@ -69,10 +67,7 @@ var isOrig = false;
 	var message =  $('#msgToSend').val();
 	$('#msgToSend').val("");
 	$('#messages').append('<div>Ben : '+message+'</div>')
-	var data = {};
-	data.type = "chat";
-	data.msg = message;
-    websocket.send(JSON.stringify(data));
+	dataCh.send(message);
   }
   
   function doJoin()
@@ -118,6 +113,7 @@ var isOrig = false;
 	var iceReady = false;
 	var iceList = new Array();
 	var negotiationSent = false;
+	var dataCh;
 
 	var attachLocalMedia =function(audioData,offer){
         
@@ -151,17 +147,16 @@ var isOrig = false;
 	            config = {"iceServers": [{"url":"stun:stun1.l.google.com:19302"}]};
 	            pc = new RTCPeerConnection(config);
 	            sdpConstraints = {
-	                optional: [],
+	                optional: [{'DtlsSrtpKeyAgreement': true},{'RtpDataChannels': true }],
 	                mandatory: {
 	                    OfferToReceiveAudio: false,
 	                    OfferToReceiveVideo: true,
-	                    MozDontOfferDataChannel: true
 	                }
 	            };
 	        }else if(navigator.webkitGetUserMedia){
 	            //chrome
 	            config = {"iceServers": [{"url":"turn:guven@192.241.208.203:3478", "credential":"12345"}]};
-	            pc = new RTCPeerConnection(config,{optional: [{ DtlsSrtpKeyAgreement: true}]});
+	            pc = new RTCPeerConnection(config,{optional: [{'DtlsSrtpKeyAgreement': true},{'RtpDataChannels': true }]});
 	            sdpConstraints = {
 	                optional: [],
 	                mandatory: {
@@ -207,9 +202,31 @@ var isOrig = false;
 	         waitUntilRemoteStreamStartsFlowing();
 	    };
 	    if(streamToAttach){
-	    	console.log("we have a stream to atttach");
+	    	console.log("we have a stream to attach");
 	    	pc.addStream (streamToAttach);
 	    }
+	    if(isOrig){
+		    dataCh = pc.createDataChannel("chat",[{ "reliable": false }]);
+		    dataCh.onmessage = function(msg){
+		    	$('#messages').append('<div>O   : '+msg.data+'</div>');
+		    }
+		    dataCh.onerror = function(msg){
+		    	alert("error on data ch");
+		    }
+		    dataCh.onopen = function(msg){
+		    	console.log("data ch open");
+		    }
+	    }else{
+		    pc.ondatachannel = function (e) {
+		    	console.log("data channel received");
+		    	dataCh = e.channel;
+		    	dataCh.onmessage = function (msg) {
+		        	console.log("data received");
+		        	$('#messages').append('<div>O   : '+msg.data+'</div>');
+		        };
+		    };
+	    }
+
 	    if(offer){
 	    	handleOffer(offer);
 	    }else{
@@ -386,4 +403,5 @@ var isOrig = false;
 	
 	var displayTalk = function(){
 		$('#talkWindow').show();
+		
 	}
