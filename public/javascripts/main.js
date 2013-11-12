@@ -1,4 +1,5 @@
 var isOrig = false;
+var ctx;
 
   function init(orig,host)
   {
@@ -64,10 +65,10 @@ var isOrig = false;
 
   function doSend()
   {
-	var message =  $('#msgToSend').val();
+	var message = $('#msgToSend').val();
 	$('#msgToSend').val("");
 	$('#messages').append('<div>Ben : '+message+'</div>')
-	dataCh.send(message);
+	dataCh.send("text:"+message);
   }
   
   function doJoin()
@@ -221,8 +222,14 @@ var isOrig = false;
 		    	console.log("data channel received");
 		    	dataCh = e.channel;
 		    	dataCh.onmessage = function (msg) {
-		        	console.log("data received");
-		        	$('#messages').append('<div>O   : '+msg.data+'</div>');
+		        	console.log("data received",msg);
+		        	if(msg.data.match("^text:")) {
+		        		var res = msg.data.substring(5);
+		        		$('#messages').append('<div>O   : '+res+'</div>');
+		        	}else if(msg.data.match("^board:")) {
+		        		var res = msg.data.substring(6);
+		        		drawCircle(res.split(",")[0],res.split(",")[1]);
+		        	}
 		        };
 		    };
 	    }
@@ -403,5 +410,5 @@ var isOrig = false;
 	
 	var displayTalk = function(){
 		$('#talkWindow').show();
-		
+		ctx = $("#whiteboard").get(0).getContext('2d');
 	}

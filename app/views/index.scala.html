@@ -30,6 +30,8 @@
 	   		<video id="local-stream" class="videostream" autoplay style="width: 173px;height:128px;border: 1px solid #Ebebeb;background:white;">local video</video>
 	   		<video id="remote-stream" class="videostream" autoplay style="width: 173px;height:128px;border: 1px solid #Ebebeb;background:white;">remote video</video>
 	   		<input onclick="startVideo()" type="button" value="video baslat">
+	   		<br>
+	   		<canvas style="border: 1px solid black;" width="300" height="300" id="whiteboard"></canvas>
 	   		<div style="border:1px solid black;width:300px">
 	   			<div><b>Konusma Penceresi</b></div>
 		   		<div id="messages">
@@ -45,8 +47,40 @@
 }
 
 <script>
+	var leftButtonDown = false;
+	var moveTime = 0;
 	@if(data != None){
 		window.addEventListener("load", init(@isOrig,"@request.host"), false);
 	}
+	
+	$("#whiteboard").on("mousemove",function(event){
+		if(leftButtonDown){
+			if((event.timeStamp - moveTime)>100){
+				var pos = $("#whiteboard").position(); 
+				var xCor = event.clientX - pos.left ;
+				var yCor = event.clientY - pos.top ;
+				drawCircle(xCor,yCor);
+				dataCh.send("board:"+xCor+","+yCor);
+				moveTime = event.timeStamp;
+			}
+		}
+	})
+	
+	
+	
+	function drawCircle(x,y) {
+	    ctx.beginPath();
+	    ctx.arc(x, y, 2, 0, Math.PI * 2);
+	    ctx.fill();	    
+	}
+	
+    $(document).on("mousedown",function(e){
+        // Left mouse button was pressed, set flag
+        if(e.which === 1) leftButtonDown = true;
+    });
+    $(document).on("mouseup",function(e){
+        // Left mouse button was released, clear flag
+        if(e.which === 1) leftButtonDown = false;
+    });
 </script>
 
