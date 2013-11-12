@@ -59,7 +59,7 @@
 				var pos = $("#whiteboard").position(); 
 				var xCor = event.clientX - pos.left ;
 				var yCor = event.clientY - pos.top ;
-				drawCircle(xCor,yCor);
+				drawCircle(xCor,yCor,"black");
 				dataCh.send("board:"+xCor+","+yCor);
 				moveTime = event.timeStamp;
 			}
@@ -68,9 +68,10 @@
 	
 	
 	
-	function drawCircle(x,y) {
+	function drawCircle(x,y,color) {
 	    ctx.beginPath();
 	    ctx.arc(x, y, 2, 0, Math.PI * 2);
+	    ctx.fillStyle=color;
 	    ctx.fill();	    
 	}
 	

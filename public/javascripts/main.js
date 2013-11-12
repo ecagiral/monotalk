@@ -209,7 +209,13 @@ var ctx;
 	    if(isOrig){
 		    dataCh = pc.createDataChannel("chat",[{ "reliable": false }]);
 		    dataCh.onmessage = function(msg){
-		    	$('#messages').append('<div>O   : '+msg.data+'</div>');
+	        	if(msg.data.match("^text:")) {
+	        		var res = msg.data.substring(5);
+	        		$('#messages').append('<div>O   : '+res+'</div>');
+	        	}else if(msg.data.match("^board:")) {
+	        		var res = msg.data.substring(6);
+	        		drawCircle(res.split(",")[0],res.split(",")[1],"red");
+	        	}
 		    }
 		    dataCh.onerror = function(msg){
 		    	alert("error on data ch");
@@ -222,13 +228,12 @@ var ctx;
 		    	console.log("data channel received");
 		    	dataCh = e.channel;
 		    	dataCh.onmessage = function (msg) {
-		        	console.log("data received",msg);
 		        	if(msg.data.match("^text:")) {
 		        		var res = msg.data.substring(5);
 		        		$('#messages').append('<div>O   : '+res+'</div>');
 		        	}else if(msg.data.match("^board:")) {
 		        		var res = msg.data.substring(6);
-		        		drawCircle(res.split(",")[0],res.split(",")[1]);
+		        		drawCircle(res.split(",")[0],res.split(",")[1],"red");
 		        	}
 		        };
 		    };
